@@ -1,4 +1,4 @@
-modelo,RMSE,MAE,MAPE_%,R2
+modelo,RMSE,MAE,MAPE_%,R²
 XGBoost,5.6202,3.9361,45.6789,0.4806
 GradientBoosting,5.6694,3.9839,46.6358,0.4715
 RandomForest,5.7317,4.0365,47.9259,0.4598
