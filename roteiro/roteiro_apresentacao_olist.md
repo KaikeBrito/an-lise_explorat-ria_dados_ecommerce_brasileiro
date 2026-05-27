@@ -87,7 +87,7 @@
 ---
 
 ## ─────────────────────────────────────────────
-## ENRICO SANTOS NAVAJAS
+## LUIZ TILLIO
 ### Slides 04–05 · Feature Engineering + Haversine + Limpeza · ~2 min
 ## ─────────────────────────────────────────────
 
@@ -387,7 +387,7 @@
 ---
 
 ## ─────────────────────────────────────────────
-## LUIZ CHAVES
+## ENRICO SANTOS NAVAJAS
 ### Slides 14–17 · Avaliação + Feature Importance + Conclusão · ~4 min
 ## ─────────────────────────────────────────────
 
