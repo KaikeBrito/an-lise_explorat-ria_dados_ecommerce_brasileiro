@@ -16,13 +16,10 @@
 
 **Slide 01 — Capa**
 
-**Tópicos-guia:**
-- Apresentar brevemente a disciplina e o professor
-- Nomear o projeto e o tema central
-- Mencionar a equipe de forma natural
+`[Olhar para a câmera — tom leve, sem correr]`
 
-**Frase de abertura sugerida:**
-> "Olá a todos. Meu nome é Kaike, e ao longo dos próximos 20 minutos, a nossa equipe vai apresentar o Projeto 2 da disciplina T326, Ciência dos Dados, do professor Caio Ponte. O projeto se chama Previsão do Tempo de Entrega Olist — um problema de regressão supervisionada usando dados reais de e-commerce brasileiro."
+**Fala sugerida (ler em voz contínua):**
+> "Olá, pessoal. Todo mundo aqui já comprou algo na internet e ficou atualizando a página de rastreio a cada cinco minutos, certo? Meu nome é Kaike, e hoje eu, o Enrico, o Mario, o Pedro, o Ian e o Luiz vamos apresentar o nosso Projeto 2 da disciplina T326 — Ciência dos Dados — do professor Caio Ponte. Nos próximos minutos, vamos mostrar como aplicamos **Machine Learning** para resolver um problema real de e-commerce: a **Previsão do Tempo de Entrega da Olist** — um problema de **regressão supervisionada** sobre o **dataset público Olist**, com **95.577 pedidos entregues**."
 
 **Âncoras técnicas obrigatórias:**
 - "regressão supervisionada"
@@ -37,16 +34,8 @@
 
 `[ZOOM nos três cards: SLA, Cancelamentos, Frete]`
 
-**Tópicos-guia:**
-- O que é a Olist e por que esse problema é relevante
-- Os três impactos de negócio: SLA, cancelamentos, precificação de frete
-- Mostrar a diferença AM vs SP como gancho geográfico
-
-**Frase sugerida para o contexto:**
-> "A Olist é o maior marketplace de departamentos do Brasil — ela conecta pequenos lojistas a canais como Mercado Livre e B2W. Com pedidos chegando a todos os 27 estados, o desafio logístico é enorme. Um pedido que sai de São Paulo chega em média em 8 dias... o mesmo pedido com destino ao Amazonas leva quase 25 dias. Isso é uma diferença de três vezes."
-
-**Para os cards de impacto:**
-> "Prever esse prazo com precisão não é só acadêmico — tem impacto direto no SLA prometido ao cliente, na taxa de cancelamento por atraso, e na precificação do frete."
+**Fala sugerida (ler em voz contínua):**
+> "O Brasil tem dimensões continentais, e a Olist opera em todos os **27 estados**. O abismo logístico é enorme: entregar em São Paulo leva em média **8,1 dias**, mas no Amazonas passa de **24,8 dias** — quase **três vezes** mais. Para a Olist, cumprir o **SLA** não é só uma promessa ao cliente: é sobrevivência do negócio. Atrasos geram **cancelamentos**, frustração e muito **custo com frete**. O nosso desafio como engenheiros de dados foi construir um modelo de regressão que estime esse prazo no exato momento do clique da compra — antes de qualquer rastreio de transportadora existir."
 
 `[PAUSA — deixa o gráfico respirar enquanto o ouvinte processa os três cards]`
 
@@ -59,35 +48,52 @@
 
 **Slide 03 — 8 Tabelas + Variável Alvo**
 
-`[ZOOM na tabela — percorrer lentamente com o mouse linha por linha]`
+`[ZOOM na tabela — percorrer com o mouse na mesma ordem em que você fala, sem pular linhas]`
 
-**Tópicos-guia:**
-- Apresentar as 8 tabelas e o papel de cada uma
-- Destacar que `orders` é o hub central
-- Definir claramente a variável alvo
-
-**Frase sugerida para a variável alvo:**
-> "Nossa variável alvo é simples: `dias_entrega` — que é simplesmente a diferença em dias entre a data de compra e a data em que o pedido chegou na casa do cliente. Cada linha do nosso dataset representa um pedido entregue, e é exatamente esse tempo que queremos prever."
-
-**Para a tabela de tabelas:**
-> "Usamos oito tabelas. A `orders` é o coração do sistema — é onde estão os timestamps de compra e entrega. A `geolocation` é a mais estratégica: ela nos dá as coordenadas de latitude e longitude por CEP, e foi ela que nos permitiu calcular a distância real entre o cliente e o vendedor."
-
-`[DESTACAR a linha 'geolocation' na tabela]`
+**Fala sugerida (ler em voz contínua — cobre as 8 tabelas):**
+> "E claro: para o modelo entender o mundo real, **dado isolado não serve**. A gente precisou **orquestrar o contexto** integrando **oito tabelas** do banco da Olist, todas amarradas pelo `order_id`.
+>
+> Tudo começa na tabela **`orders`** — o coração do sistema. É nela que ficam os timestamps da jornada do pedido, da compra até a entrega na casa do cliente. E é daí que nasce a nossa **variável alvo contínua**, `dias_entrega`: simplesmente a diferença em dias entre a data da compra e a data em que o pedido chegou. Cada linha do nosso dataset final representa um pedido entregue — e é exatamente esse número de dias que queremos prever.
+>
+> A partir de `orders`, a gente puxa quem comprou. A tabela **`customers`** traz o estado, a cidade e o prefixo do CEP do comprador — ou seja, **para onde** o pacote precisa ir.
+>
+> O que foi comprado e **quem envia** entra pela **`order_items`**: ela liga cada pedido ao produto, ao vendedor, ao preço e ao valor do frete. Sem ela, a gente não saberia nem o que está dentro da caixa nem de qual loja o pacote sai.
+>
+> Com o `seller_id` em mãos, entramos na **`sellers`** — de onde o produto despacha, também com CEP, cidade e estado. Já na **`products`**, capturamos o que impacta a logística física: peso, dimensões e categoria do item. Só que as categorias vêm em português codificado; por isso usamos a **`translation`**, uma tabela auxiliar que traduz o nome da categoria para inglês e deixa o agrupamento dos produtos consistente para o modelo.
+>
+> Na **`payments`**, fechamos o perfil financeiro do pedido: forma de pagamento, parcelas e valor pago — sinais que ajudam a explicar comportamentos diferentes de compra e de frete.
+>
+> E o elo que transforma CEP em mapa é a **`geolocation`**: latitude e longitude por prefixo de CEP. Foi ela que permitiu cruzar a localização do cliente com a do vendedor e calcular distâncias reais — o maior diferencial geográfico do nosso pipeline.
+>
+> No fim, são **8 tabelas integradas por `order_id`**, com **`orders` como hub central** — uma base única, robusta e pronta para virar modelo. Agora eu passo a palavra para o **Enrico**, que vai mostrar como transformamos tudo isso nas **38 features** que o algoritmo de fato aprende."
 
 **Âncoras técnicas:**
-- "variável alvo contínua"
-- "8 tabelas integradas por order_id"
+- "variável alvo contínua · `dias_entrega`"
+- "8 tabelas integradas por `order_id`"
 - "`orders` como hub central"
 
-**Frase de passagem para o Enrico:**
-> "Com o problema definido e as tabelas mapeadas, a próxima etapa foi transformar esses dados brutos em variáveis que o modelo consegue aprender. Vou passar para o Enrico, que vai explicar como construímos essas 38 features."
+**Mapa rápido (consulta no ensaio — não precisa ler em voz alta):**
+
+| Tabela | Papel na fala |
+|---|---|
+| `orders` | Hub + timestamps + target `dias_entrega` |
+| `customers` | Destino do pedido (UF, cidade, CEP) |
+| `order_items` | Ponte pedido ↔ produto ↔ vendedor + frete |
+| `sellers` | Origem do despacho |
+| `products` | Peso, dimensões, categoria |
+| `translation` | Decodifica categoria do produto |
+| `payments` | Forma de pagamento, parcelas, valor |
+| `geolocation` | Lat/lng por CEP → distância cliente–vendedor |
+
+**Frase de passagem para o Luiz:**
+> "Com o problema definido e as oito tabelas mapeadas, a próxima etapa foi transformar esses dados brutos em variáveis que o modelo consegue aprender. Luiz, com você."
 
 `[CORTE — troca de apresentador]`
 
 ---
 
 ## ─────────────────────────────────────────────
-## ENRICO SANTOS NAVAJAS
+## LUIZ TILLIO
 ### Slides 04–05 · Feature Engineering + Haversine + Limpeza · ~2 min
 ## ─────────────────────────────────────────────
 
@@ -379,38 +385,33 @@
 - "progressão Ridge → XGBoost"
 - "Bias = 0,014 — modelo bem calibrado"
 
-**Frase de passagem para o Luiz:**
-> "O XGBoost venceu o benchmark. Mas para confiar num modelo, não basta olhar o número — precisamos analisar os resíduos, entender o que o modelo aprendeu, e ser honestos sobre os limites. Isso fica com o Luiz."
+**Frase de passagem para o Enrico:**
+> "O XGBoost venceu o benchmark. Mas número bonito na tela não fecha o trabalho — a gente precisa entender o erro, o que o modelo aprendeu de verdade e onde ainda dá para melhorar. Enrico, com você."
 
 `[CORTE — troca de apresentador]`
 
 ---
 
 ## ─────────────────────────────────────────────
-## LUIZ CHAVES
+## ENRICO SANTOS NAVAJAS
 ### Slides 14–17 · Avaliação + Feature Importance + Conclusão · ~4 min
 ## ─────────────────────────────────────────────
 
 **Slide 14 — Métricas RMSE / MAE / R²**
 
-`[ZOOM nos três cards de métricas]`
+`[ZOOM nos três cards de métricas — da esquerda para a direita]`
 
-**Tópicos-guia:**
-- Dar a intuição de cada métrica antes da fórmula
-- Explicar por que usar RMSE em vez de MAE como principal
-- Contextualizar o R²=0,48
-
-**Para as métricas:**
-> "Antes de analisar os resultados, é importante entender o que cada métrica mede. O RMSE é a raiz do erro quadrático médio — ele penaliza erros grandes mais do que erros pequenos. Numa distribuição com skewness positivo como a nossa, isso é desejado: não queremos errar muito nos pedidos que já vão demorar."
-
-**Para o MAE:**
-> "O MAE, erro médio absoluto, é mais intuitivo: em média, o modelo erra 3,94 dias para mais ou para menos. Esse é o número que você explicaria para o gestor de logística."
-
-**Para o R²:**
-> "O R² de 0,48 significa que o modelo explica 48% da variância do prazo de entrega. E os outros 52%? São fatores que não estão no nosso dataset: condições climáticas, volume de pedidos na transportadora naquele dia, trânsito, feriados regionais. Não é uma limitação do modelo — é uma limitação dos dados disponíveis."
+**Fala sugerida (ler em voz contínua):**
+> "O Ian mostrou que o XGBoost venceu o benchmark. Agora eu fecho o ciclo explicando **como a gente mede esse resultado** — e o que cada número significa na prática.
+>
+> Começo pelo **RMSE**, nossa métrica principal: **5,62 dias**. A intuição é simples: ele mede o erro médio, mas **penaliza mais os erros grandes** — porque eleva a diferença ao quadrado antes de tirar a raiz. Num problema em que alguns pedidos já demoram semanas, isso importa: errar feio numa entrega longa pesa mais do que errar um dia numa entrega curta.
+>
+> O **MAE** é o número mais fácil de explicar para qualquer gestor: **3,94 dias**. Em média, a previsão do modelo fica cerca de quatro dias acima ou abaixo do prazo real — sem distorção quadrática.
+>
+> E o **R² de 0,48**? Significa que o modelo explica **48% da variância** do tempo de entrega só com o que sabíamos no momento da compra. Os outros 52% não são 'falha do algoritmo' — são fatores que **não estão no dataset**: clima, trânsito, volume da transportadora naquele dia, greve, feriado regional. Ou seja: o modelo está forte dentro do que os dados permitem."
 
 **Âncoras técnicas:**
-- "RMSE penaliza erros grandes quadraticamente"
+- "RMSE = 5,62 dias — penaliza erros grandes quadraticamente"
 - "MAE = 3,94 dias"
 - "R² = 0,4806 — 48% da variância explicada"
 
@@ -418,58 +419,43 @@
 
 **Slide 15 — Análise de Resíduos**
 
-`[ZOOM nos 3 painéis]`
+`[ZOOM nos 3 painéis — mesmo sentido da fala: esquerda → centro → direita]`
 
-**Tópicos-guia:**
-- Descrever o que o olho vê em cada painel
-- Interpretar o Bias de 0,014
-- Discutir a cauda direita nos resíduos
+**Fala sugerida (ler em voz contínua):**
+> "Número bom no papel ainda não prova que o modelo é confiável. Por isso olhamos os **resíduos** — a diferença entre o que aconteceu e o que o modelo previu.
+>
+> No primeiro painel, **Real versus Predito**, os pontos seguem a diagonal: quanto maior o prazo real, maior a previsão. Não é perfeito — e não precisa ser —, mas a tendência está correta. Reparem que a nuvem **abre mais nas entregas longas**: prever 30 dias é naturalmente mais difícil do que prever 10.
+>
+> No painel do meio, **resíduo versus predito**, os erros ficam **espalhados em torno de zero**, sem curva sistemática subindo ou descendo. O **Bias é 0,014 dia** — praticamente zero. Traduzindo: o modelo **não tende a prometer entrega rápida demais nem lenta demais**; ele está bem calibrado.
+>
+> No histograma, a distribuição é **quase normal**, com uma leve cauda à direita — o mesmo padrão que já víamos no target. Nada que indique viés grave ou comportamento estranho. Resumindo: o XGBoost acerta a direção e mantém o erro sob controle."
 
-**Para os painéis:**
-> "A análise de resíduos tem três painéis. No primeiro, Real vs Predito, os pontos se alinham razoavelmente à diagonal — se o modelo fosse perfeito, todos estariam exatamente nela. A dispersão cresce para entregas mais longas: pedidos de 30 dias têm mais incerteza do que pedidos de 10 dias, o que é esperado."
-
-`[ZOOM no painel central: resíduos vs predito]`
-
-**Para os resíduos:**
-> "No painel central, os resíduos estão centrados em zero sem nenhum padrão sistemático. O Bias é 0,014 dia — praticamente zero. Isso significa que o modelo não subestima nem superestima o prazo de forma consistente. É um modelo bem calibrado."
-
-`[ZOOM no histograma de resíduos]`
-
-**Para o histograma:**
-> "A distribuição dos resíduos é aproximadamente normal com uma leve cauda à direita — coerente com o skewness do próprio target. Não há nada alarmante aqui."
-
-`[PAUSA — 2 segundos]`
+`[PAUSA — 2 segundos no painel central]`
 
 **Âncoras técnicas:**
 - "resíduos centrados em zero"
-- "Bias = 0,014 dia"
+- "Bias = 0,014 dia — modelo bem calibrado"
 - "dispersão maior em entregas longas"
 
 ---
 
 **Slide 16 — Feature Importance + Melhorias**
 
-`[ZOOM no gráfico de barras — destacar a dominância de mesma_uf]`
+`[ZOOM no gráfico de barras — pausar em `mesma_uf`; depois nas demais top features; por fim na tabela de melhorias]`
 
-**Tópicos-guia:**
-- Apresentar a dominância de `mesma_uf`
-- Explicar por que o XGBoost venceu tecnicamente
-- Apresentar o roadmap de melhorias com honestidade
-
-**Para a feature importance:**
-> "O gráfico de importância de features do XGBoost conta uma história clara. A feature `mesma_uf` tem score de 0,77 — ela sozinha contribui com 77% do Gain médio das árvores. Isso confirma o que a análise exploratória já sugeria: a fronteira estadual é o maior determinante do prazo de entrega. É um resultado geograficamente intuitivo."
-
-`[DESTACAR as 5 features principais]`
-
-**Para os 52%:**
-> "Quero ser honesto sobre o que não conseguimos prever. Os 52% de variância não explicada refletem fatores reais: o estado do tráfego no dia da entrega, o volume de pedidos na transportadora, se havia uma greve, se o endereço era de difícil acesso. Para capturar isso, precisaríamos de dados externos que não estão no dataset."
-
-`[ZOOM na tabela de melhorias]`
+**Fala sugerida (ler em voz contínua):**
+> "Além do erro, a gente precisa saber **o que o modelo aprendeu**. O gráfico de importância do XGBoost deixa isso muito claro.
+>
+> A variável **`mesma_uf`** domina com score **0,77** — sozinha ela concentra a maior parte do ganho das árvores. Na prática: **cliente e vendedor no mesmo estado** muda o jogo mais do que peso do produto, categoria ou forma de pagamento. Faz sentido no Brasil continental: cruzar fronteira estadual quase dobra o prazo médio — e o modelo capturou isso.
+>
+> Em seguida aparecem sinais geográficos e do vendedor — distância, latitude, histórico médio de entrega da loja —, confirmando que **logística é, antes de tudo, problema de espaço**.
+>
+> E quero ser transparente sobre o que **ainda não dá para prever** com esses dados. Os 52% de variância que ficaram de fora refletem o mundo real fora do CSV: trânsito no dia, fila no hub da transportadora, chuva, greve, endereço difícil. No nosso roadmap, incorporar **dados externos** — clima, rotas de CD, APIs de distância rodoviária — pode elevar o R² entre **cinco e oito pontos percentuais**. É o próximo passo natural do projeto."
 
 **Âncoras técnicas:**
-- "`mesma_uf` score 0,77"
-- "52% de variância não explicada"
-- "fatores externos: clima, trânsito, volume da transportadora"
+- "`mesma_uf` score 0,77 — maior determinante"
+- "52% de variância não explicada — limitação dos dados"
+- "potencial R² +0,05 a +0,08 com dados externos"
 
 ---
 
@@ -477,16 +463,16 @@
 
 `[ZOOM nos três cards: Melhor Modelo · Principal Insight · Próximos Passos]`
 
-**Tópicos-guia:**
-- Resumir em três bullets objetivos
-- Reforçar o impacto prático
-- Agradecer e encerrar com elegância
-
-**Frase sugerida:**
-> "Para fechar, três pontos. O melhor modelo foi o XGBoost: RMSE de 5,62 dias, R² de 0,48, e Bias de praticamente zero. O principal insight foi que a variável `mesma_uf` domina o modelo — a fronteira estadual é mais determinante do que qualquer característica do produto ou do pagamento. E como próximos passos, incorporar dados externos como clima e rotas de CD pode aumentar o R² em até 8 pontos percentuais."
-
-**Encerramento:**
-> "Esse projeto foi construído do zero: desde a engenharia das 38 features até o tuning do XGBoost com validação cruzada. Agradecemos ao professor Caio Ponte pela condução da disciplina, e ficamos à disposição para perguntas."
+**Fala sugerida (ler em voz contínua):**
+> "Para encerrar, três mensagens que resumem tudo o que vocês viram hoje.
+>
+> **Primeiro:** o melhor modelo foi o **XGBoost** — **RMSE 5,62 dias**, **R² 0,48** e **Bias praticamente zero**. É o resultado que levaríamos para um piloto operacional.
+>
+> **Segundo:** o principal insight é geográfico — **`mesma_uf` manda no modelo**. Quem compra no mesmo estado em que o vendedor despacha recebe o pacote muito mais rápido; quem cruza estado paga o custo do tempo.
+>
+> **Terceiro:** o caminho de evolução é claro — enriquecer com **dados externos** e refinar a distância além da Haversine.
+>
+> Construímos isso do zero: oito tabelas integradas, 38 features, pipeline sem vazamento de dados, cinco algoritmos comparados e tuning com validação cruzada. Agradecemos ao professor **Caio Ponte** e à disciplina **T326**. Obrigado pela atenção — estamos à disposição para perguntas."
 
 `[PAUSA FINAL — deixa a tela de conclusão por 5 segundos antes de encerrar a gravação]`
 `[CORTE FINAL]`
@@ -512,7 +498,7 @@
 
 ---
 
-### ENRICO — sobre Feature Engineering e Haversine
+### LUIZ — sobre Feature Engineering e Haversine
 
 **P: "Por que a Haversine e não a distância rodoviária real?"**
 > R: "A distância rodoviária exigiria uma API externa como Google Maps, com custo e latência. A Haversine é uma boa aproximação para a distância em linha reta, e na prática ela tem correlação r=+0,44 com o target — o que mostra que captura bem a lógica logística. A limitação é reconhecida no roadmap de melhorias."
@@ -552,7 +538,7 @@
 
 ---
 
-### LUIZ — sobre Avaliação
+### ENRICO — sobre Avaliação
 
 **P: "R²=0,48 é considerado bom para esse tipo de problema?"**
 > R: "Para previsão de prazo logístico sem dados de rastreamento — apenas com características do pedido no momento da compra — sim. O estado da arte em competições similares fica entre 0,45 e 0,55. O que não conseguimos capturar são fatores externos como clima e volume da transportadora, que não estão no dataset."
@@ -567,11 +553,11 @@
 | Integrante | Slides | Tempo |
 |---|---|---|
 | Kaike  | 01–03 | ~2 min |
-| Enrico | 04–05 | ~2 min |
+| Luiz   | 04–05 | ~2 min |
 | Mario  | 06–07 | ~2 min |
 | Pedro  | 08–10 | ~3 min |
 | Ian    | 11–13 | ~5 min |
-| Luiz   | 14–17 | ~4 min |
+| Enrico | 14–17 | ~4 min |
 | **Total** | **17 slides** | **~18 min** |
 
 > **Dica de gravação:** grave cada integrante separadamente e edite em seguida.
